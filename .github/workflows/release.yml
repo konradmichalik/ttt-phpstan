@@ -1,0 +1,13 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    uses: konradmichalik/reusable-github-actions/.github/workflows/release.yml@48fcbd0657c3818eac74b9d91dc26c29ad76c5ab # 1.0.0
