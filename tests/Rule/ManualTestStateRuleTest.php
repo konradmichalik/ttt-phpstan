@@ -19,7 +19,6 @@ final class ManualTestStateRuleTest extends RuleTestCase
             ['$GLOBALS[\'TYPO3_CONF_VARS\'] is set by hand in a test, use #[WithTypo3ConfVars] instead.', 13],
             ['$GLOBALS[\'TCA\'] is set by hand in a test, use #[WithTca] instead.', 14],
             ['Environment variable set with putenv() in a test, use #[WithEnvVar] instead.', 15],
-            ['$GLOBALS[\'TYPO3_CONF_VARS\'] is set by hand in a test, use #[WithTypo3ConfVars] instead.', 20],
             ['$GLOBALS[\'TCA\'] is set by hand in a test, use #[WithTca] instead.', 56],
             ['$GLOBALS[\'TCA\'] is set by hand in a test, use #[WithTca] instead.', 70],
         ]);

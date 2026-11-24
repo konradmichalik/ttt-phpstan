@@ -7,7 +7,6 @@ namespace KonradMichalik\TttPhpStan;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
@@ -95,9 +94,8 @@ final class ManualTestStateRule implements Rule
             return [];
         }
 
-        // Replacing the whole array cannot be expressed as a deep merge, so only literals are flagged.
-        $isRoot = $assign->var instanceof ArrayDimFetch && $this->isGlobalsFetch($assign->var->var);
-        if ($isRoot && !$assign->expr instanceof Array_) {
+        // Replacing the whole global is not a deep merge, so a ttt attribute would change what the test does.
+        if ($assign->var instanceof ArrayDimFetch && $this->isGlobalsFetch($assign->var->var)) {
             return [];
         }
 

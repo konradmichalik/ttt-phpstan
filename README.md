@@ -20,7 +20,7 @@ A rule only reports when its attribute exists in the project, so older ttt versi
 
 Only classes that extend PHPUnit's `TestCase` are checked. `FunctionalTestCase` is skipped, because ttt rejects some attributes there.
 
-A test class or method that already carries the matching attribute is not reported: ttt restores the whole global afterwards, so more state inside that test is safe. Replacing the whole global with something that is not an array literal (`$GLOBALS['TYPO3_CONF_VARS'] = 'invalid'`) is skipped too, because a deep merge cannot express it.
+A test class or method that already carries the matching attribute is not reported: ttt restores the whole global afterwards, so more state inside that test is safe. Replacing the whole global (`$GLOBALS['TYPO3_CONF_VARS'] = [...]`) is never reported: the attributes deep-merge, so they would change what such a test does.
 
 `$GLOBALS['BE_USER']` is not checked. Tests there usually assign a mock with expectations, which `#[WithBackendUser]` cannot replace.
 

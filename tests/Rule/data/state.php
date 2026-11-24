@@ -15,12 +15,12 @@ final class StateTest extends TestCase
         putenv('MY_EXT=1');
     }
 
-    public function rootLiteral(): void
+    public function rootLiteralIsNotReported(): void
     {
         $GLOBALS['TYPO3_CONF_VARS'] = ['A' => 1];
     }
 
-    public function rootNonLiteral(): void
+    public function rootNonLiteralIsNotReported(): void
     {
         $GLOBALS['TYPO3_CONF_VARS'] = 'not-an-array';
     }
