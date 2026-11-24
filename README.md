@@ -13,7 +13,7 @@ PHPStan rules for [ttt](https://github.com/konradmichalik/ttt). Tests that set `
 
 ### Requirements
 
-- PHP 8.2 to 8.5
+- PHP 8.2 to 8.6
 - PHPStan 2.1 or newer
 - [`konradmichalik/ttt`](https://github.com/konradmichalik/ttt), optional: a rule stays silent for attributes that are not installed
 
