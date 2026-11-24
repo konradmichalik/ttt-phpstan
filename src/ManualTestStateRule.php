@@ -122,11 +122,11 @@ final class ManualTestStateRule implements Rule
         }
 
         $function = $scope->getFunction();
-        if (null === $class || null === $function || !$class->hasNativeMethod($function->getName())) {
+        if (null === $class || null === $function || !$class->getNativeReflection()->hasMethod($function->getName())) {
             return false;
         }
 
-        return [] !== $class->getNativeMethod($function->getName())->getAttributes($name);
+        return [] !== $class->getNativeReflection()->getMethod($function->getName())->getAttributes($name);
     }
 
     // WithTca only exists from ttt 0.4, and without ttt there is nothing to point to.
