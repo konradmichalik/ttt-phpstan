@@ -12,13 +12,16 @@
 	],
 	"require": {
 		"php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
-		"konradmichalik/ttt": "^0.6",
 		"phpstan/phpstan": "^2.1"
 	},
 	"require-dev": {
 		"armin/editorconfig-cli": "^2.0",
 		"ergebnis/composer-normalize": "^2.44",
+		"konradmichalik/ttt": "^0.6",
 		"phpunit/phpunit": "^11.5 || ^12.0"
+	},
+	"suggest": {
+		"konradmichalik/ttt": "The attributes the rules point to, a rule stays silent for attributes that are not installed (WithTca needs 0.4 or newer)"
 	},
 	"autoload": {
 		"psr-4": {

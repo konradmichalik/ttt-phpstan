@@ -13,6 +13,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -29,12 +30,15 @@ final class ManualTestStateRule implements Rule
 {
     private const FUNCTIONAL_TEST_CASE = 'TYPO3\TestingFramework\Core\Functional\FunctionalTestCase';
 
-    private const ATTRIBUTE_NAMESPACE = 'KonradMichalik\\Ttt\\Attribute\\';
-
     private const GLOBALS_ATTRIBUTES = [
         'TYPO3_CONF_VARS' => 'WithTypo3ConfVars',
         'TCA' => 'WithTca',
     ];
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly string $attributeNamespace = 'KonradMichalik\\Ttt\\Attribute\\',
+    ) {}
 
     public function getNodeType(): string
     {
@@ -70,6 +74,10 @@ final class ManualTestStateRule implements Rule
             return [];
         }
 
+        if (!$this->isAvailable('WithEnvVar')) {
+            return [];
+        }
+
         return [
             RuleErrorBuilder::message('Environment variable set with putenv() in a test, use #[WithEnvVar] instead.')
                 ->identifier('ttt.manualEnvVar')
@@ -94,7 +102,7 @@ final class ManualTestStateRule implements Rule
         }
 
         $attribute = self::GLOBALS_ATTRIBUTES[$key];
-        if ($this->isSandboxed($scope, $attribute)) {
+        if (!$this->isAvailable($attribute) || $this->isSandboxed($scope, $attribute)) {
             return [];
         }
 
@@ -108,7 +116,7 @@ final class ManualTestStateRule implements Rule
     // The attribute restores the whole global afterwards, so setting more state inside such a test is safe.
     private function isSandboxed(Scope $scope, string $attribute): bool
     {
-        $name = self::ATTRIBUTE_NAMESPACE . $attribute;
+        $name = $this->attributeNamespace . $attribute;
 
         $class = $scope->getClassReflection();
         if (null !== $class && [] !== $class->getNativeReflection()->getAttributes($name)) {
@@ -121,6 +129,12 @@ final class ManualTestStateRule implements Rule
         }
 
         return [] !== $class->getNativeMethod($function->getName())->getAttributes($name);
+    }
+
+    // WithTca only exists from ttt 0.4, and without ttt there is nothing to point to.
+    private function isAvailable(string $attribute): bool
+    {
+        return $this->reflectionProvider->hasClass($this->attributeNamespace . $attribute);
     }
 
     private function globalsKey(Node\Expr $expr): ?string

@@ -16,6 +16,8 @@ With [`phpstan/extension-installer`](https://github.com/phpstan/extension-instal
 | `ttt.manualGlobals` | `$GLOBALS['TCA']` is assigned | `#[WithTca]` |
 | `ttt.manualEnvVar` | `putenv()` is called | `#[WithEnvVar]` |
 
+A rule only reports when its attribute exists in the project, so older ttt versions never get a pointer to something they do not have (`#[WithTca]` needs ttt 0.4 or newer, the others work with 0.1 and newer). Without ttt installed the rules stay silent.
+
 Only classes that extend PHPUnit's `TestCase` are checked. `FunctionalTestCase` is skipped, because ttt rejects some attributes there.
 
 A test class or method that already carries the matching attribute is not reported: ttt restores the whole global afterwards, so more state inside that test is safe. Replacing the whole global with something that is not an array literal (`$GLOBALS['TYPO3_CONF_VARS'] = 'invalid'`) is skipped too, because a deep merge cannot express it.

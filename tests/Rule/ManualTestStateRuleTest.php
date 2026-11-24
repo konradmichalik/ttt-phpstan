@@ -27,6 +27,6 @@ final class ManualTestStateRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new ManualTestStateRule();
+        return new ManualTestStateRule(self::createReflectionProvider());
     }
 }
