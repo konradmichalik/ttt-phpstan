@@ -1,0 +1,64 @@
+{
+	"name": "konradmichalik/ttt-phpstan",
+	"description": "PHPStan rules that point to ttt attributes instead of hand-written test state",
+	"license": "GPL-3.0-or-later",
+	"type": "phpstan-extension",
+	"authors": [
+		{
+			"name": "Konrad Michalik",
+			"email": "hej@konradmichalik.dev",
+			"role": "Maintainer"
+		}
+	],
+	"require": {
+		"php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+		"konradmichalik/ttt": "^0.6",
+		"phpstan/phpstan": "^2.1"
+	},
+	"require-dev": {
+		"armin/editorconfig-cli": "^2.0",
+		"ergebnis/composer-normalize": "^2.44",
+		"phpunit/phpunit": "^11.5 || ^12.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"KonradMichalik\\TttPhpStan\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"KonradMichalik\\TttPhpStan\\Tests\\": "tests/"
+		},
+		"classmap": [
+			"tests/Rule/data"
+		]
+	},
+	"config": {
+		"allow-plugins": {
+			"ergebnis/composer-normalize": true
+		},
+		"sort-packages": true
+	},
+	"extra": {
+		"phpstan": {
+			"includes": [
+				"rules.neon"
+			]
+		}
+	},
+	"scripts": {
+		"fix": [
+			"@fix:composer",
+			"@fix:editorconfig"
+		],
+		"fix:composer": "@composer normalize",
+		"fix:editorconfig": "@lint:editorconfig --fix",
+		"lint": [
+			"@lint:composer",
+			"@lint:editorconfig"
+		],
+		"lint:composer": "@fix:composer --dry-run",
+		"lint:editorconfig": "ec --git-only",
+		"test": "phpunit"
+	}
+}

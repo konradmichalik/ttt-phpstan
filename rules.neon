@@ -1,0 +1,5 @@
+services:
+	-
+		class: KonradMichalik\TttPhpStan\ManualTestStateRule
+		tags:
+			- phpstan.rules.rule
