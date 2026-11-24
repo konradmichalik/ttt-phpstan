@@ -49,9 +49,9 @@ parameters:
 
 | Identifier | Reported when | Use instead |
 |------------|---------------|-------------|
-| `ttt.manualGlobals` | `$GLOBALS['TYPO3_CONF_VARS']` is changed below its root | [`#[WithTypo3ConfVars]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-typo3-conf-vars.md) |
-| `ttt.manualGlobals` | `$GLOBALS['TCA']` is changed below its root | [`#[WithTca]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-tca.md) |
-| `ttt.manualEnvVar` | `putenv()` is called | [`#[WithEnvVar]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-env-var.md) |
+| `ttt.manualGlobals` | `$GLOBALS['TYPO3_CONF_VARS']` is assigned below its root | [`#[WithTypo3ConfVars]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-typo3-conf-vars.md) |
+| `ttt.manualGlobals` | `$GLOBALS['TCA']` is assigned below its root | [`#[WithTca]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-tca.md) |
+| `ttt.manualEnvVar` | `putenv()` is called, to set or to clear a variable | [`#[WithEnvVar]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-env-var.md) |
 
 ```php
 // Reported: ttt.manualEnvVar
@@ -66,8 +66,9 @@ Only classes that extend PHPUnit's `TestCase` are checked. `FunctionalTestCase` 
 
 A few cases are deliberately not reported:
 
-- A test class or method that already carries the matching attribute. ttt restores the whole global afterwards, so more state inside that test is safe.
+- A test class, one of its parent classes or the test method that already carries the matching attribute. ttt restores the whole global afterwards, so more state inside that test is safe.
 - Replacing a whole global, as in `$GLOBALS['TYPO3_CONF_VARS'] = [...]`. The attributes deep-merge, so they would change what such a test does.
+- Compound assignments (`??=`, `.=`) and `unset()`. Only plain `=` is checked.
 - `$GLOBALS['BE_USER']`. Tests usually assign a mock with expectations there, which `#[WithBackendUser]` cannot replace.
 - Attributes that are not installed. `#[WithTca]` needs ttt 0.4 or newer, `#[WithEnvVar]` and `#[WithTypo3ConfVars]` exist since 0.1. Without ttt, all rules stay silent.
 
