@@ -17,7 +17,6 @@
 	"require-dev": {
 		"armin/editorconfig-cli": "^2.0",
 		"ergebnis/composer-normalize": "^2.44",
-		"konradmichalik/ttt": "^0.6",
 		"phpunit/phpunit": "^11.5 || ^12.0"
 	},
 	"suggest": {
@@ -34,6 +33,9 @@
 		},
 		"classmap": [
 			"tests/Rule/data"
+		],
+		"files": [
+			"tests/Stubs/ttt-attributes.php"
 		]
 	},
 	"config": {

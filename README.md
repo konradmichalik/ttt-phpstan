@@ -93,6 +93,8 @@ parameters:
 
 ## 🧑‍💻 Development
 
+The tests use small stubs of the three attributes instead of ttt itself, so the test matrix does not depend on ttt's supported PHP versions.
+
 ```bash
 composer test   # PHPUnit
 composer lint   # composer normalize (dry run) and editorconfig check
