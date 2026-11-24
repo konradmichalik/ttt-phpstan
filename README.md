@@ -1,30 +1,96 @@
+<div align="center">
+
 # ttt PHPStan rules
 
-PHPStan rules for [ttt](https://github.com/konradmichalik/ttt): tests that set state by hand get pointed to the attribute that does the same and restores it afterwards.
+[![Tests](https://img.shields.io/github/actions/workflow/status/konradmichalik/ttt-phpstan/tests.yml?label=tests&logo=github)](https://github.com/konradmichalik/ttt-phpstan/actions/workflows/tests.yml)
+[![Supported PHP Versions](https://img.shields.io/packagist/dependency-v/konradmichalik/ttt-phpstan/php?logo=php)](https://packagist.org/packages/konradmichalik/ttt-phpstan)
+
+</div>
+
+PHPStan rules for [ttt](https://github.com/konradmichalik/ttt). Tests that set `putenv()` or `$GLOBALS` by hand depend on a `tearDown()` that is skipped on hard errors. ttt restores that state declaratively, and these rules point at the attribute that replaces each manual call.
+
+## 🔥 Installation
+
+### Requirements
+
+- PHP 8.2 to 8.5
+- PHPStan 2.1 or newer
+- [`konradmichalik/ttt`](https://github.com/konradmichalik/ttt), optional: a rule stays silent for attributes that are not installed
+
+### Composer
+
+[![Packagist](https://img.shields.io/packagist/v/konradmichalik/ttt-phpstan?label=version&logo=packagist)](https://packagist.org/packages/konradmichalik/ttt-phpstan)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/konradmichalik/ttt-phpstan?color=brightgreen)](https://packagist.org/packages/konradmichalik/ttt-phpstan)
 
 ```bash
 composer require konradmichalik/ttt-phpstan --dev
 ```
 
-With [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer) the rules are active right away. Otherwise include `vendor/konradmichalik/ttt-phpstan/rules.neon`.
+## ⚡ Usage
 
-## Rules
+If you have the [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer)
+package installed, there is nothing more to do. The [rules](rules.neon) are included
+automatically.
+
+### Manual Setup
+
+```yaml
+# phpstan.neon
+
+includes:
+  - %rootDir%/../../konradmichalik/ttt-phpstan/rules.neon
+
+parameters:
+  paths:
+    - Tests/Unit
+```
+
+## 🧰 Rules
 
 | Identifier | Reported when | Use instead |
 |------------|---------------|-------------|
-| `ttt.manualGlobals` | `$GLOBALS['TYPO3_CONF_VARS']` is assigned | `#[WithTypo3ConfVars]` |
-| `ttt.manualGlobals` | `$GLOBALS['TCA']` is assigned | `#[WithTca]` |
-| `ttt.manualEnvVar` | `putenv()` is called | `#[WithEnvVar]` |
+| `ttt.manualGlobals` | `$GLOBALS['TYPO3_CONF_VARS']` is changed below its root | [`#[WithTypo3ConfVars]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-typo3-conf-vars.md) |
+| `ttt.manualGlobals` | `$GLOBALS['TCA']` is changed below its root | [`#[WithTca]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-tca.md) |
+| `ttt.manualEnvVar` | `putenv()` is called | [`#[WithEnvVar]`](https://github.com/konradmichalik/ttt/blob/main/docs/attributes/with-env-var.md) |
 
-A rule only reports when its attribute exists in the project, so older ttt versions never get a pointer to something they do not have (`#[WithTca]` needs ttt 0.4 or newer, the others work with 0.1 and newer). Without ttt installed the rules stay silent.
+```php
+// Reported: ttt.manualEnvVar
+putenv('MY_EXT_FEATURE=1');
+
+// Instead
+#[WithEnvVar('MY_EXT_FEATURE', '1')]
+public function resolvesConfiguration(): void {}
+```
 
 Only classes that extend PHPUnit's `TestCase` are checked. `FunctionalTestCase` is skipped, because ttt rejects some attributes there.
 
-A test class or method that already carries the matching attribute is not reported: ttt restores the whole global afterwards, so more state inside that test is safe. Replacing the whole global (`$GLOBALS['TYPO3_CONF_VARS'] = [...]`) is never reported: the attributes deep-merge, so they would change what such a test does.
+A few cases are deliberately not reported:
 
-`$GLOBALS['BE_USER']` is not checked. Tests there usually assign a mock with expectations, which `#[WithBackendUser]` cannot replace.
+- A test class or method that already carries the matching attribute. ttt restores the whole global afterwards, so more state inside that test is safe.
+- Replacing a whole global, as in `$GLOBALS['TYPO3_CONF_VARS'] = [...]`. The attributes deep-merge, so they would change what such a test does.
+- `$GLOBALS['BE_USER']`. Tests usually assign a mock with expectations there, which `#[WithBackendUser]` cannot replace.
+- Attributes that are not installed. `#[WithTca]` needs ttt 0.4 or newer, `#[WithEnvVar]` and `#[WithTypo3ConfVars]` exist since 0.1. Without ttt, all rules stay silent.
 
-## Development
+## 🛠️ Typical Overrides
+
+A test that needs an invalid value, which a deep merge cannot express, keeps its manual assignment. Ignore the rule inline and keep the reason next to it:
+
+```php
+// @phpstan-ignore ttt.manualGlobals (tests an invalid, non-array configuration)
+$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['my_ext'] = 'not-an-array';
+```
+
+Or ignore one file by identifier and path:
+
+```yaml
+parameters:
+  ignoreErrors:
+    -
+      identifier: ttt.manualEnvVar
+      path: Tests/Unit/Utility/EnvironmentHelperTest.php
+```
+
+## 🧑‍💻 Development
 
 ```bash
 composer test   # PHPUnit
@@ -32,6 +98,6 @@ composer lint   # composer normalize (dry run) and editorconfig check
 composer fix
 ```
 
-## License
+## ⭐ License
 
-GPL-3.0-or-later
+This project is licensed under [GNU General Public License 3.0 (or later)](LICENSE).
